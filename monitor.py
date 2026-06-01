@@ -39,15 +39,16 @@ def send(msg):
 def get_latest_tx():
     try:
         url = (
-            "https://api.etherscan.io/api"
-            f"?module=account"
-            f"&action=tokentx"
-            f"&address={ADDRESS}"
-            f"&page=1"
-            f"&offset=1"
-            f"&sort=desc"
-            f"&apikey={ETHERSCAN_API_KEY}"
-        )
+    "https://api.etherscan.io/v2/api"
+    "?chainid=1"
+    "&module=account"
+    "&action=tokentx"
+    f"&address={ADDRESS}"
+    "&page=1"
+    "&offset=1"
+    "&sort=desc"
+    f"&apikey={ETHERSCAN_API_KEY}"
+)
 
         r = requests.get(url, timeout=20)
 
