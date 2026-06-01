@@ -8,7 +8,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 
 ADDRESS = "0x5ad05c158151248064a9db38624000ddba0eb6a1"
 
-LAST_HASH = ""
+LAST_HASH = None
 
 print("Bot started...")
 print("API KEY FOUND:", bool(ETHERSCAN_API_KEY))
@@ -17,53 +17,61 @@ print("CHAT FOUND:", bool(CHAT_ID))
 
 
 def send(msg):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    try:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-    r = requests.post(
-        url,
-        data={
-            "chat_id": CHAT_ID,
-            "text": msg
-        }
-    )
+        r = requests.post(
+            url,
+            data={
+                "chat_id": CHAT_ID,
+                "text": msg
+            },
+            timeout=15
+        )
 
-    print("Telegram:", r.status_code)
+        print("Telegram Status:", r.status_code)
+        print("Telegram Response:", r.text)
+
+    except Exception as e:
+        print("Telegram Error:", str(e))
 
 
 def get_latest_tx():
-    url = (
-        "https://api.etherscan.io/api"
-        f"?module=account"
-        f"&action=tokentx"
-        f"&address={ADDRESS}"
-        f"&page=1"
-        f"&offset=1"
-        f"&sort=desc"
-        f"&apikey={ETHERSCAN_API_KEY}"
-    )
+    try:
+        url = (
+            "https://api.etherscan.io/api"
+            f"?module=account"
+            f"&action=tokentx"
+            f"&address={ADDRESS}"
+            f"&page=1"
+            f"&offset=1"
+            f"&sort=desc"
+            f"&apikey={ETHERSCAN_API_KEY}"
+        )
 
-    r = requests.get(url)
+        r = requests.get(url, timeout=20)
 
-    print("ETHERSCAN STATUS:", r.status_code)
+        print("ETHERSCAN STATUS:", r.status_code)
 
-    data = r.json()
+        data = r.json()
 
-    print("ETHERSCAN RESPONSE:", data)
+        print("ETHERSCAN RESPONSE:", data)
 
-    if (
-        data.get("status") == "1"
-        and len(data.get("result", [])) > 0
-    ):
-        return data["result"][0]
+        if (
+            data.get("status") == "1"
+            and len(data.get("result", [])) > 0
+        ):
+            return data["result"][0]
+
+    except Exception as e:
+        print("Etherscan Error:", str(e))
 
     return None
 
 
 while True:
-
     try:
-
-        print("Checking...")
+        print("Checking transactions...")
 
         tx = get_latest_tx()
 
@@ -71,10 +79,9 @@ while True:
 
             current_hash = tx["hash"]
 
-            global LAST_HASH
-
-            if LAST_HASH == "":
+            if LAST_HASH is None:
                 LAST_HASH = current_hash
+                print("Initial transaction stored:", current_hash)
 
             elif current_hash != LAST_HASH:
 
@@ -83,29 +90,29 @@ while True:
                     / (10 ** int(tx["tokenDecimal"]))
                 )
 
-                send(
-                    f"🚨 ERC20 Transfer\n\n"
+                message = (
+                    f"🚨 NEW ERC20 TRANSFER\n\n"
                     f"Token: {tx['tokenSymbol']}\n"
-                    f"Amount: {amount}\n"
-                    f"TX:\nhttps://etherscan.io/tx/{current_hash}"
+                    f"Amount: {amount}\n\n"
+                    f"From:\n{tx['from']}\n\n"
+                    f"To:\n{tx['to']}\n\n"
+                    f"https://etherscan.io/tx/{current_hash}"
                 )
+
+                send(message)
 
                 LAST_HASH = current_hash
 
                 print("Alert Sent")
 
             else:
-
-                print("No New TX")
+                print("No New Transaction")
 
         else:
-
-            print("No TX Found")
+            print("No Transaction Found")
 
         time.sleep(30)
 
     except Exception as e:
-
-        print("ERROR:", str(e))
-
+        print("MAIN LOOP ERROR:", str(e))
         time.sleep(30)
