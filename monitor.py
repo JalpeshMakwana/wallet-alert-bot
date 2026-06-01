@@ -116,8 +116,8 @@ while True:
         else:
             print("No Transaction Found")
 
-        time.sleep(60)
+        time.sleep(300)
 
     except Exception as e:
         print("MAIN LOOP ERROR:", str(e))
-        time.sleep(60)
+        time.sleep(300)
