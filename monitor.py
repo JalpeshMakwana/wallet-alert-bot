@@ -15,10 +15,11 @@ print("API KEY FOUND:", bool(ETHERSCAN_API_KEY))
 print("BOT FOUND:", bool(BOT_TOKEN))
 print("CHAT FOUND:", bool(CHAT_ID))
 
-send("✅ Bot Online & Monitoring ERC20 Transactions")
+
 
 
 def send(msg):
+    send("✅ Bot Online & Monitoring ERC20 Transactions")
     try:
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
