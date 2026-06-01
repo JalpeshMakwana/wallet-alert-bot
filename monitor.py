@@ -19,8 +19,9 @@ print("CHAT FOUND:", bool(CHAT_ID))
 
 
 def send(msg):
-    send("✅ Bot Online & Monitoring ERC20 Transactions")
+    
     try:
+        send("✅ Bot Online & Monitoring ERC20 Transactions")
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
         r = requests.post(
@@ -115,8 +116,8 @@ while True:
         else:
             print("No Transaction Found")
 
-        time.sleep(30)
+        time.sleep(60)
 
     except Exception as e:
         print("MAIN LOOP ERROR:", str(e))
-        time.sleep(30)
+        time.sleep(60)
