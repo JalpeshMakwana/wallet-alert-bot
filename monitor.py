@@ -284,12 +284,12 @@ while True:
 
             grouped = defaultdict(list)
 
-for tx in txs:
-    grouped[tx["hash"]].append(tx)
+            for tx in txs:
+                grouped[tx["hash"]].append(tx)
 
             for tx_hash, block_txs in grouped.items():
-sample = block_txs[0]
-block_number = sample["block"]
+                sample = block_txs[0]
+                block_number = sample["block"]
                 
                 total_gas_eth = 0
 
