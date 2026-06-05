@@ -258,8 +258,12 @@ while True:
                 tx_hash = tx["hash"]
 
                 redis_key = (
-                    f"{wallet_name}:{tx_hash}"
-                )
+    f"{wallet_name}:"
+    f"{tx['hash']}:"
+    f"{tx['contractAddress']}:"
+    f"{tx['value']}:"
+    f"{tx['to']}"
+)
 
                 if redis_exists(redis_key):
                     continue
@@ -280,14 +284,13 @@ while True:
 
             grouped = defaultdict(list)
 
-            for tx in txs:
+for tx in txs:
+    grouped[tx["hash"]].append(tx)
 
-                grouped[
-                    tx["block"]
-                ].append(tx)
-
-            for block_number, block_txs in grouped.items():
-
+            for tx_hash, block_txs in grouped.items():
+sample = block_txs[0]
+block_number = sample["block"]
+                
                 total_gas_eth = 0
 
                 lines = []
@@ -324,27 +327,29 @@ while True:
                 sample = block_txs[0]
 
                 message = (
-                    f"🚨 BLOCK ACTIVITY DETECTED\n\n"
-                    f"Wallet:\n"
-                    f"{wallet_name}\n\n"
-                    f"Address:\n"
-                    f"{wallet_address}\n\n"
-                    f"Block:\n"
-                    f"{block_number}\n\n"
-                    f"Transactions:\n"
-                    f"{len(block_txs)}\n\n"
-                    f"━━━━━━━━━━━━━━\n"
-                    f"{chr(10).join(lines)}\n"
-                    f"━━━━━━━━━━━━━━\n\n"
-                    f"Gas Fee:\n"
-                    f"{gas_eth_str} ETH\n"
-                    f"~${gas_usd:,.2f}\n\n"
-                    f"Timestamp UTC:\n"
-                    f"{sample['timestamp']}\n\n"
-                    f"Confirmations:\n"
-                    f"{sample['confirmations']}\n\n"
-                    f"https://etherscan.io/block/{block_number}"
-                )
+    f"🚨 TRANSACTION DETECTED\n\n"
+    f"Wallet:\n"
+    f"{wallet_name}\n\n"
+    f"Address:\n"
+    f"{wallet_address}\n\n"
+    f"Transaction Hash:\n"
+    f"{tx_hash}\n\n"
+    f"Block:\n"
+    f"{block_number}\n\n"
+    f"Events:\n"
+    f"{len(block_txs)}\n\n"
+    f"━━━━━━━━━━━━━━\n"
+    f"{chr(10).join(lines)}\n"
+    f"━━━━━━━━━━━━━━\n\n"
+    f"Gas Fee:\n"
+    f"{gas_eth_str} ETH\n"
+    f"~${gas_usd:,.2f}\n\n"
+    f"Timestamp UTC:\n"
+    f"{sample['timestamp']}\n\n"
+    f"Confirmations:\n"
+    f"{sample['confirmations']}\n\n"
+    f"https://etherscan.io/tx/{tx_hash}"
+)
 
                 send_telegram(message)
 
